@@ -79,7 +79,14 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    ofPushMatrix();
+    ofTranslate((ofGetWidth()/2)-(feeds[currentSelectedCamera].videoSource.getWidth()/2), (ofGetHeight()/2)-(feeds[currentSelectedCamera].videoSource.getHeight()/2));
+    
+    
     feeds[currentSelectedCamera].videoSource.draw(0,0);
+    
+    
+    
     switch (currentSelectedCamera) {
         case 0:
             if(tracker1.getFound()){
@@ -95,6 +102,7 @@ void ofApp::draw(){
         default:
             break;
     }
+    ofPopMatrix();
     
 }
 
