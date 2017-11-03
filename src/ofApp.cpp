@@ -6,7 +6,7 @@ using namespace ofxCv;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    feeds.push_back(videoFeed());
+    feeds.push_back(VideoFeed());
     trackers.push_back(ofxFaceTracker());
     feeds[0].videoSource.setDeviceID(0);
     feeds[0].videoSource.initGrabber(320, 240);
@@ -15,7 +15,7 @@ void ofApp::setup(){
     tracker1.setClamp(3.);
     tracker1.setIterations(5);
     
-    feeds.push_back(videoFeed());
+    feeds.push_back(VideoFeed());
     trackers.push_back(ofxFaceTracker());
     feeds[1].videoSource.setDeviceID(0);
     feeds[1].videoSource.initGrabber(320, 240);
@@ -81,12 +81,7 @@ void ofApp::update(){
 void ofApp::draw(){
     ofPushMatrix();
     ofTranslate((ofGetWidth()/2)-(feeds[currentSelectedCamera].videoSource.getWidth()/2), (ofGetHeight()/2)-(feeds[currentSelectedCamera].videoSource.getHeight()/2));
-    
-    
     feeds[currentSelectedCamera].videoSource.draw(0,0);
-    
-    
-    
     switch (currentSelectedCamera) {
         case 0:
             if(tracker1.getFound()){

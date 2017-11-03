@@ -24,12 +24,12 @@ class ofApp : public ofBaseApp{
         
         //-----\gui section
     
-        struct videoFeed {
+        struct VideoFeed {
             ofVideoGrabber videoSource;
             bool faceDetected = false;
             
         };
-        vector<videoFeed> feeds;
+        vector<VideoFeed> feeds;
         vector<ofxFaceTracker> trackers;
         ofxFaceTracker tracker1;
         ofxFaceTracker tracker2;
