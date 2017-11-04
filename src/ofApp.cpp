@@ -1,13 +1,35 @@
 #include "ofApp.h"
 using namespace ofxCv;
 
+//videoCaptureMethods
+void videoCaptureTrack::setup(int src, int w, int h){
+    video.setDeviceID(src);
+    video.initGrabber(w, h);
+    vidW=w;
+    vidH=h;
+    tracker.setup();
+    tracker.setAttempts(1);
+    tracker.setClamp(3.);
+    tracker.setIterations(5);
+}
+void videoCaptureTrack::update(){
+    video.update();
+    if(video.isFrameNew()){
+        tracker.update(toCv(video));
+    }
+}
 
+void videoCaptureTrack::drawVideo(int x, int y){
+    video.draw(x,y);
+}
+void videoCaptureTrack::trackingDraw(){
+    tracker.draw();
+}
 
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    feeds.push_back(VideoFeed());
-    trackers.push_back(ofxFaceTracker());
+    feeds.push_back(VideoFeedWebcam());
     feeds[0].videoSource.setDeviceID(0);
     feeds[0].videoSource.initGrabber(320, 240);
     tracker1.setup();
@@ -15,8 +37,7 @@ void ofApp::setup(){
     tracker1.setClamp(3.);
     tracker1.setIterations(5);
     
-    feeds.push_back(VideoFeed());
-    trackers.push_back(ofxFaceTracker());
+    feeds.push_back(VideoFeedWebcam());
     feeds[1].videoSource.setDeviceID(0);
     feeds[1].videoSource.initGrabber(320, 240);
     tracker2.setup();

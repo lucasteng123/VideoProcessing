@@ -5,7 +5,22 @@
 #include "ofxOsc.h"
 #include "ofxCv.h"
 #include "ofxFaceTracker.h"
+#include "ofxNDI.h"
 
+class videoCaptureTrack {
+    
+    ofxFaceTracker tracker;
+    ofVideoGrabber video;
+    public:
+    int vidW, vidH;
+    void setup(int, int, int);
+    void update();
+    void drawVideo(int, int);
+    void trackingDraw();
+    vector<int> getTrackingData();
+    
+    
+};
 
 
 class ofApp : public ofBaseApp{
@@ -24,12 +39,23 @@ class ofApp : public ofBaseApp{
         
         //-----\gui section
     
-        struct VideoFeed {
-            ofVideoGrabber videoSource;
-            bool faceDetected = false;
+        //video capture
+    
+        struct VideoFeedNDI {
+            //ndi
+            ofxNDIreceiver ndiReciever;
             
         };
-        vector<VideoFeed> feeds;
+        struct VideoFeedWebcam {
+            ofVideoGrabber videoSource;
+            bool faceDetected = false;
+            ofxFaceTracker tracker;
+        };
+        struct VideoFeedBlackmagic{
+           
+           
+        };
+        vector<VideoFeedWebcam> feeds;
         vector<ofxFaceTracker> trackers;
         ofxFaceTracker tracker1;
         ofxFaceTracker tracker2;
@@ -76,4 +102,5 @@ class ofApp : public ofBaseApp{
     
 		
 };
+
 
