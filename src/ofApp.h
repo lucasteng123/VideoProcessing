@@ -17,7 +17,7 @@ class videoCaptureTrack {
     void update();
     void drawVideo(int, int);
     void trackingDraw();
-    vector<int> getTrackingData();
+    vector<float> getTrackingData();
     
     
 };

@@ -25,6 +25,10 @@ void videoCaptureTrack::drawVideo(int x, int y){
 void videoCaptureTrack::trackingDraw(){
     tracker.draw();
 }
+vector<float> videoCaptureTrack::getTrackingData(){
+    float * capturePointer = tracker.getPosition.getPtr();
+    
+}
 
 
 //--------------------------------------------------------------
