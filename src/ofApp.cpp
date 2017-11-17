@@ -25,30 +25,28 @@ void videoCaptureTrack::drawVideo(int x, int y){
 void videoCaptureTrack::trackingDraw(){
     tracker.draw();
 }
+
 vector<float> videoCaptureTrack::getTrackingData(){
-    float * capturePointer = tracker.getPosition.getPtr();
-    
+    ofVec2f position = tracker.getPosition();
+    float * posptr = position.getPtr();
+    vector<float> values;
+    values.push_back(*(posptr));
+    values.push_back(*(posptr+1));
+    values.push_back(tracker.getScale());
+    return values;
 }
 
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    feeds.push_back(VideoFeedWebcam());
-    feeds[0].videoSource.setDeviceID(0);
-    feeds[0].videoSource.initGrabber(320, 240);
-    tracker1.setup();
-    tracker1.setAttempts(1);
-    tracker1.setClamp(3.);
-    tracker1.setIterations(5);
-    
-    feeds.push_back(VideoFeedWebcam());
-    feeds[1].videoSource.setDeviceID(0);
-    feeds[1].videoSource.initGrabber(320, 240);
-    tracker2.setup();
-    tracker2.setAttempts(1);
-    tracker2.setClamp(3.);
-    tracker2.setIterations(5);
-    
+    videoCaptureTrack vct;
+   
+    try{
+    inputs.push_back(vct);
+    inputs[0].setup(0,320,240);
+    } catch(exception& e) {
+        std::cout << e.what();
+    }
     //set up window
     ofSetWindowTitle("Video Processing");
     ofSetWindowShape(512, 512);
@@ -62,18 +60,20 @@ void ofApp::setup(){
     connectToServerButton = serverSection->addButton("Connect to Server");
     
     cameraSection=gui->addFolder("CAMERA",ofColor::darkBlue);
-    activeCamera=cameraSection->addMatrix("Active Camera", feeds.size());
+    activeCamera=cameraSection->addMatrix("Active Camera", inputs.size());
     activeCamera->setRadioMode(true);
     
-    
-    
-    
     //Networking
-    oscReciever.setup(7891);
-    connectedToServer = false;
-    oscSenderBroadcast.setup("127.0.0.1", 7892);
-    ofSetLogLevel(OF_LOG_VERBOSE);
-    serverConnect();
+    try {
+        oscReciever.setup(7891);
+        connectedToServer = false;
+        oscSenderBroadcast.setup("127.0.0.1", 7892);
+        ofSetLogLevel(OF_LOG_VERBOSE);
+        serverConnect();
+    } catch (exception& e) {
+        std::cout << e.what();
+    }
+   
     
 }
 
@@ -91,39 +91,16 @@ void ofApp::update(){
     }
     
     //update cameras
-   
-    feeds[0].videoSource.update();
-    if(feeds[0].videoSource.isFrameNew()){
-        tracker1.update(toCv(feeds[0].videoSource));
-    }
-    feeds[1].videoSource.update();
-    if(feeds[1].videoSource.isFrameNew()){
-        tracker2.update(toCv(feeds[1].videoSource));
-    }
+    inputs[0].update();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofPushMatrix();
-    ofTranslate((ofGetWidth()/2)-(feeds[currentSelectedCamera].videoSource.getWidth()/2), (ofGetHeight()/2)-(feeds[currentSelectedCamera].videoSource.getHeight()/2));
-    feeds[currentSelectedCamera].videoSource.draw(0,0);
-    switch (currentSelectedCamera) {
-        case 0:
-            if(tracker1.getFound()){
-                tracker1.draw();
-            }
-            break;
-        case 1:
-            if(tracker2.getFound()){
-                tracker2.draw();
-            }
-            break;
-            
-        default:
-            break;
-    }
+    ofTranslate(inputs[currentSelectedCamera].vidW, inputs[currentSelectedCamera].vidH);
+    inputs[currentSelectedCamera].drawVideo(0, 0);
+    inputs[currentSelectedCamera].trackingDraw();
     ofPopMatrix();
-    
 }
 
 void ofApp::exit(){

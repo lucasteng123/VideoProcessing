@@ -13,6 +13,7 @@ class videoCaptureTrack {
     ofVideoGrabber video;
     public:
     int vidW, vidH;
+    videoCaptureTrack(){};
     void setup(int, int, int);
     void update();
     void drawVideo(int, int);
@@ -28,7 +29,7 @@ class ofApp : public ofBaseApp{
 	public:
         //----- gui section
         bool showGui;
-        const int RELATIVEMOVE = 0;
+    
         ofxDatGui* gui = new ofxDatGui(ofxDatGuiAnchor::TOP_LEFT);
         ofxDatGuiButton* connectToServerButton;
         ofxDatGuiFolder* serverSection;
@@ -60,6 +61,8 @@ class ofApp : public ofBaseApp{
         ofxFaceTracker tracker1;
         ofxFaceTracker tracker2;
     
+        vector<videoCaptureTrack> inputs;
+    
     
         int currentSelectedCamera=0;
 
@@ -72,6 +75,7 @@ class ofApp : public ofBaseApp{
     
         ofxOscSender oscSenderBroadcast;
         ofxOscSender oscServer;
+        const int RELATIVEMOVE = 0;
     
         //-----/OSC section
 		void setup();
