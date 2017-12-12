@@ -1,3 +1,4 @@
+ofxArtnet
 ofxCv
 ofxDatGui
 ofxFaceTracker

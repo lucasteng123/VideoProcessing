@@ -19,6 +19,7 @@ class videoCaptureTrack {
     void drawVideo(int, int);
     void trackingDraw();
     vector<float> getTrackingData();
+    bool getTrackingFound();
     
     
 };
@@ -27,8 +28,10 @@ class videoCaptureTrack {
 class ofApp : public ofBaseApp{
     
 	public:
+        const int CUE = 1;
         //----- gui section
         bool showGui;
+        bool faceIsFound;
     
         ofxDatGui* gui = new ofxDatGui(ofxDatGuiAnchor::TOP_LEFT);
         ofxDatGuiButton* connectToServerButton;
@@ -37,8 +40,27 @@ class ofApp : public ofBaseApp{
         ofxDatGuiFolder* cameraSection;
         ofxDatGuiMatrix* activeCamera;
         ofxDatGuiFRM* framerate;
-        
+        ofxDatGuiTextInput* tricasterIP;
+        ofxDatGuiButton* connectToTricasterButton;
+        ofxDatGuiDropdown* InputSelector1;
+        ofxDatGuiDropdown* InputSelector2;
+        ofxDatGuiLabel* tricasterStatus;
+    
+    
+    
         //-----\gui section
+    
+        //----- tricaster
+        bool triconnect = false;
+        bool trienabled = false;
+        string triIP = "141.117.228.85";
+        string input1;
+        string input2;
+    
+    
+    
+    
+        //-----\
     
         //video capture
     
@@ -102,6 +124,9 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+    
+        ofxOscSender eosOsc;
+        void eosControl(int mode, float arg);
     
     
 		

@@ -35,15 +35,19 @@ vector<float> videoCaptureTrack::getTrackingData(){
     values.push_back(tracker.getScale());
     return values;
 }
+bool videoCaptureTrack::getTrackingFound(){
+    return tracker.getFound();
+}
 
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     videoCaptureTrack vct;
+    faceIsFound = false;
    
     try{
     inputs.push_back(vct);
-    inputs[0].setup(0,320,240);
+    inputs[0].setup(0,640,480);
     } catch(exception& e) {
         std::cout << e.what();
     }
@@ -52,6 +56,8 @@ void ofApp::setup(){
     ofSetWindowShape(512, 512);
     ofSetFrameRate(60);
     ofBackgroundHex(0x1c1c1c);
+    
+    
     gui->onButtonEvent(this, &ofApp::buttonPressed);
     gui->onMatrixEvent(this, &ofApp::matrixPressed);
     serverSection = gui->addFolder("SERVER", ofColor::darkRed);
@@ -63,6 +69,17 @@ void ofApp::setup(){
     activeCamera=cameraSection->addMatrix("Active Camera", inputs.size());
     activeCamera->setRadioMode(true);
     
+    gui->addLabel("Tricaster");
+    tricasterIP = gui->addTextInput("Tricaster IP");
+    tricasterIP->setText("141.117.228.85");
+    connectToTricasterButton = gui->addButton("Connect to Tricaster");
+    vector<string> inputs = {"input1","input2","input3","input4","input5","input6","input7","input8","input9","input10","input11","input12","ddr1","ddr2","gfx1","gfx2","v1","v2","v3","v4","v5","v6","v7","v8"};
+    gui->addDropdown("No Face", inputs);
+    gui->addDropdown("With Face", inputs);
+    
+    
+    
+    
     //Networking
     try {
         oscReciever.setup(7891);
@@ -70,6 +87,7 @@ void ofApp::setup(){
         oscSenderBroadcast.setup("127.0.0.1", 7892);
         ofSetLogLevel(OF_LOG_VERBOSE);
         serverConnect();
+        eosOsc.setup("127.0.0.1", 8000);
     } catch (exception& e) {
         std::cout << e.what();
     }
@@ -92,14 +110,27 @@ void ofApp::update(){
     
     //update cameras
     inputs[0].update();
+    if(inputs[0].getTrackingFound()!=faceIsFound){
+        faceIsFound=inputs[0].getTrackingFound();
+        if(triconnect && trienabled){
+            if(faceIsFound){
+               ofLoadURL("http://"+triIP+":5952/v1/shortcut?name=main_a_row_named_input&value=gfx2");
+                
+            }else{
+                ofLoadURL("http://"+triIP+":5952/v1/shortcut?name=main_a_row_named_input&value=gfx1");
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofPushMatrix();
-    ofTranslate(inputs[currentSelectedCamera].vidW, inputs[currentSelectedCamera].vidH);
+    ofTranslate(ofGetWidth()/2-inputs[currentSelectedCamera].vidW/2, ofGetHeight()/2-inputs[currentSelectedCamera].vidH/2);
     inputs[currentSelectedCamera].drawVideo(0, 0);
-    inputs[currentSelectedCamera].trackingDraw();
+    if(faceIsFound){
+        inputs[currentSelectedCamera].trackingDraw();
+    }
     ofPopMatrix();
 }
 
@@ -144,6 +175,20 @@ void ofApp::sendCommand(int command, int values[], int camera){
         }
     }
 }
+void ofApp::eosControl(int mode, float arg){
+    switch (mode) {
+        {case 1:
+            ofxOscMessage msg;
+            msg.setAddress("/eos/cue/fire");
+            msg.addFloatArg(arg);
+            eosOsc.sendMessage(msg);
+            break;}
+            
+        {default:
+            return;
+            break;}
+    }
+}
 
 
 //------------------------ EVENTS ------------------------------
@@ -151,6 +196,18 @@ void ofApp::sendCommand(int command, int values[], int camera){
 void ofApp::buttonPressed(ofxDatGuiButtonEvent e){
     if (e.target == connectToServerButton) {
         if(!connectedToServer) serverConnect();
+    }
+    if (e.target == connectToTricasterButton){
+        try{
+            ofXml inputReturn;
+            ofHttpResponse resp = ofLoadURL("http://" + triIP + ":5952/v1/dictionary?key=tally");
+            triconnect = true;
+            trienabled = true;
+
+        }catch(exception& e){
+            std::cout << e.what();
+            return;
+        }
     }
 }
 void ofApp::matrixPressed(ofxDatGuiMatrixEvent e){
